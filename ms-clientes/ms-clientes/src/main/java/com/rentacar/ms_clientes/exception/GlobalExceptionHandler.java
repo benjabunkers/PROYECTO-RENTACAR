@@ -1,6 +1,5 @@
 package com.rentacar.ms_clientes.exception;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +9,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationErrors(
             MethodArgumentNotValidException ex) {
@@ -29,4 +29,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError()
                 .body("Error interno: " + ex.getMessage()); // 500
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFound(
+            ResourceNotFoundException ex) {
+
+        return ResponseEntity.status(404)
+                .body(ex.getMessage());
+    }
+
 }
