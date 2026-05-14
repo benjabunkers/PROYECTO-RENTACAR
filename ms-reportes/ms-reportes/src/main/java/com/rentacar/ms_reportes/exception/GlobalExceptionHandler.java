@@ -29,4 +29,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError()
                 .body("Error interno: " + ex.getMessage()); // 500
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFound(
+            ResourceNotFoundException ex) {
+
+        return ResponseEntity.status(404)
+                .body(ex.getMessage());
+    }
 }
