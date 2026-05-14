@@ -1,5 +1,4 @@
-package com.rentacar.ms_empleados.model;
-
+package com.rentacar.ms_reportes.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,29 +7,29 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "REPORTES")
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Entity
-@Table(name = "EMPLEADOS")
-public class Empleado {
+
+public class Reporte {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String nombre;
+    private String titulo;
 
-    private String apellido;
+    private String descripcion;
 
-    private String cargo;
+    private String tipoReporte;
 
-    private String email;
+    private LocalDate fechaGeneracion;
 
-    private Double sueldo;
-
-    private LocalDate fechaContratacion;
+    private String generadoPor;
 
     private Boolean activo;
 }
