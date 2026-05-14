@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "Vehiculos")
+@Table(name = "vehiculos")
 public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,5 +22,9 @@ public class Vehiculo {
     private Integer anio ;
     private Boolean disponible ;
     private LocalDate fechaIngreso ;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id",nullable = false)
+    private Categoria categoria;
 
 }
