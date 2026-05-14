@@ -31,4 +31,6 @@ public class VehiculoDTO {
     @PastOrPresent
     private LocalDate fechaIngreso ;
 
+    private Integer categoriaId;
+
 }

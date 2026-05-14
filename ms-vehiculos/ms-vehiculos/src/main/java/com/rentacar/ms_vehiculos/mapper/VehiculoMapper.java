@@ -1,6 +1,7 @@
 package com.rentacar.ms_vehiculos.mapper;
 
 import com.rentacar.ms_vehiculos.dto.VehiculoDTO;
+import com.rentacar.ms_vehiculos.model.Categoria;
 import com.rentacar.ms_vehiculos.model.Vehiculo;
 
 public class VehiculoMapper {
@@ -12,20 +13,19 @@ public class VehiculoMapper {
                 vehiculo.getPrecioDiario(),
                 vehiculo.getAnio(),
                 vehiculo.getDisponible(),
-                vehiculo.getFechaIngreso()
-
-
+                vehiculo.getFechaIngreso(),
+                vehiculo.getCategoria().getId()
                 );
     }
-
-    public static Vehiculo toEntity(VehiculoDTO dto){
+    public static Vehiculo toEntity(VehiculoDTO dto, Categoria categoria){
         return new Vehiculo(
                 dto.getId(),
                 dto.getModelo(),
                 dto.getPrecioDiario(),
                 dto.getAnio(),
                 dto.getDisponible(),
-                dto.getFechaIngreso()
+                dto.getFechaIngreso(),
+                categoria
         );
     }
 }
