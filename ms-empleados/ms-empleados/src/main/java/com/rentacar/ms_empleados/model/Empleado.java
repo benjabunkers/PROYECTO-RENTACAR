@@ -13,16 +13,24 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "Empleados")
+@Table(name = "EMPLEADOS")
 public class Empleado {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String nombre ;
-    private String correo;
-    private Double salario;
-    private Boolean activo ;
-    private LocalDate fechaContratacion ;
+    private String nombre;
+
+    private String apellido;
+
+    private String cargo;
+
+    private String email;
+
+    private Double sueldo;
+
+    private LocalDate fechaContratacion;
+
+    private Boolean activo;
 }
