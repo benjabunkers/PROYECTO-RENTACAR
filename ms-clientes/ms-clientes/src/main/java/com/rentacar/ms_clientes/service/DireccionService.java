@@ -1,111 +1,86 @@
 package com.rentacar.ms_clientes.service;
 
-import com.rentacar.ms_clientes.dto.DireccionDTO;
-import com.rentacar.ms_clientes.exception.ResourceNotFoundException;
-import com.rentacar.ms_clientes.mapper.DireccionMapper;
-import com.rentacar.ms_clientes.model.Direccion;
-import com.rentacar.ms_clientes.repository.DireccionRepository;
 
-import lombok.RequiredArgsConstructor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import com.rentacar.ms_clientes.dto.DireccionDTO;
+import com.rentacar.ms_clientes.dto.DireccionRequestDTO;
+import com.rentacar.ms_clientes.exception.ResourceNotFoundException;
+import com.rentacar.ms_clientes.mapper.DireccionMapper;
+import com.rentacar.ms_clientes.model.Cliente;
+import com.rentacar.ms_clientes.model.Direccion;
+import com.rentacar.ms_clientes.repository.ClienteRepository;
+import com.rentacar.ms_clientes.repository.DireccionRepository;
+import org.slf4j.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@Transactional
 
 public class DireccionService {
 
-    private final DireccionRepository direccionRepository;
+    private static final Logger log = LoggerFactory.getLogger(DireccionService.class);
+    private final DireccionRepository repository;
+    private final ClienteRepository clienteRepository;
 
-    private static final Logger log =
-            LoggerFactory.getLogger(DireccionService.class);
+    public DireccionService(DireccionRepository repository, ClienteRepository clienteRepository) {
+        this.repository = repository;
+        this.clienteRepository = clienteRepository;
+    }
 
-    // LISTAR
+    @Transactional(readOnly = true)
     public List<DireccionDTO> findAll() {
-
         log.info("Listando direcciones");
-
-        return direccionRepository.findAll()
-                .stream()
-                .map(DireccionMapper::toDTO)
-                .collect(Collectors.toList());
+        return repository.findAll().stream().map(DireccionMapper::toDTO).toList();
     }
 
-    // BUSCAR POR ID
+    @Transactional(readOnly = true)
     public DireccionDTO findById(Integer id) {
-
-        log.info("Buscando direccion por id: {}", id);
-
-        Direccion direccion = direccionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Direccion no encontrada"
-                        ));
-
-        return DireccionMapper.toDTO(direccion);
+        log.info("Buscando Direccion {}", id);
+        return repository
+                .findById(id)
+                .map(DireccionMapper::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Direccion no encontrado con id " + id));
     }
 
-    // GUARDAR
-    public DireccionDTO save(DireccionDTO dto) {
-
+    public DireccionDTO save(DireccionRequestDTO d) {
         try {
-
-            log.info("Guardando direccion");
-
-            Direccion direccion = DireccionMapper.toEntity(dto);
-
-            direccion = direccionRepository.save(direccion);
-
-            return DireccionMapper.toDTO(direccion);
-
-        } catch (Exception e) {
-
-            log.error("Error al guardar direccion: {}", e.getMessage());
-
-            throw e;
+            log.info("Guardando Direccion");
+            Direccion x = DireccionMapper.toEntity(d);
+            asignarCliente(x, d.clienteId());
+            return DireccionMapper.toDTO(repository.save(x));
+        } catch (RuntimeException ex) {
+            log.error("Error al guardar Direccion", ex);
+            throw ex;
         }
     }
 
-    // ACTUALIZAR
-    public DireccionDTO update(Integer id, DireccionDTO dto) {
-
-        log.info("Actualizando direccion");
-
-        Direccion direccion = direccionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Direccion no encontrada"
-                        ));
-
-        direccion.setCalle(dto.getCalle());
-        direccion.setCiudad(dto.getCiudad());
-        direccion.setComuna(dto.getComuna());
-        direccion.setNumero(dto.getNumero());
-        direccion.setPrincipal(dto.getPrincipal());
-        direccion.setFechaRegistro(dto.getFechaRegistro());
-
-        direccion = direccionRepository.save(direccion);
-
-        return DireccionMapper.toDTO(direccion);
+    public DireccionDTO update(Integer id, DireccionRequestDTO d) {
+        Direccion x =
+                repository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("Direccion no encontrado con id " + id));
+        DireccionMapper.updateEntity(x, d);
+        asignarCliente(x, d.clienteId());
+        return DireccionMapper.toDTO(repository.save(x));
     }
 
-    // ELIMINAR
     public void delete(Integer id) {
-
-        log.info("Eliminando direccion");
-
-        Direccion direccion = direccionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Direccion no encontrada"
-                        ));
-
-        direccionRepository.delete(direccion);
+        if (!repository.existsById(id))
+            throw new ResourceNotFoundException("Direccion no encontrado con id " + id);
+        repository.deleteById(id);
     }
+
+    private void asignarCliente(Direccion x, Integer id) {
+        Cliente p =
+                clienteRepository
+                        .findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con id " + id));
+        x.setCliente(p);
+    }
+
+
 }

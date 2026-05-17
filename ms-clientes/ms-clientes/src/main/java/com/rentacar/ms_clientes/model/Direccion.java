@@ -1,37 +1,44 @@
 package com.rentacar.ms_clientes.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
-@Entity
-@Table(name = "DIRECCIONES")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Entity
+@Table(name = "direcciones")
 public class Direccion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String calle;
 
-    private String ciudad;
-
-    private String comuna;
-
+    @Column(nullable = false)
     private Integer numero;
 
-    private Boolean principal;
+    @Column(nullable = false)
+    private String comuna;
 
-    private LocalDate fechaRegistro;
+    @Column(nullable = false)
+    private String ciudad;
 
-    @ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @Column(nullable = false)
+    private Integer codigoPostal;
+
+    @Column(nullable = false)
+    private Boolean principal = true;
+
+    @Column(nullable = false)
+    private LocalDate fechaCreacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 }
