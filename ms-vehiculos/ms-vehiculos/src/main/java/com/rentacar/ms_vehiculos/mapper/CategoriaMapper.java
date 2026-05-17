@@ -40,7 +40,7 @@ public class CategoriaMapper {
         categoria.setActiva(dto.isActiva());
         categoria.setFechaCreacion(dto.getFechaCreacion());
 
-        // ⚡ Inicializamos lista vacía (no se mapea aquí porque los vehículos se manejan aparte)
+
         categoria.setVehiculos(new ArrayList<>());
 
         return categoria;
