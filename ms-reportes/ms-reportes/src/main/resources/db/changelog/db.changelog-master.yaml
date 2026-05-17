@@ -1,0 +1,129 @@
+databaseChangeLog:
+      - changeSet:
+          id: 1-create-reportes
+          author: rentacar
+          changes:
+            - createTable:
+                tableName: reportes
+                columns:
+                  - column:
+                      name: id
+                      type: INT
+                      autoIncrement: true
+                      constraints:
+                        primaryKey: true
+                        nullable: false
+                  - column:
+                      name: titulo
+                      type: VARCHAR(100)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: tipo_reporte
+                      type: VARCHAR(50)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: total_reservas
+                      type: INT
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: total_ingresos
+                      type: DOUBLE
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: fecha_generacion
+                      type: DATE
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: generado
+                      type: BOOLEAN
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: observacion
+                      type: VARCHAR(200)
+                      constraints:
+                        nullable: false
+
+      - changeSet:
+          id: 2-insert-reportes
+          author: rentacar
+          changes:
+            - insert:
+                tableName: reportes
+                columns:
+                  - column:
+                      name: titulo
+                      value: "Reporte diario de reservas"
+                  - column:
+                      name: tipo_reporte
+                      value: "DIARIO"
+                  - column:
+                      name: total_reservas
+                      valueNumeric: 8
+                  - column:
+                      name: total_ingresos
+                      valueNumeric: 450000
+                  - column:
+                      name: fecha_generacion
+                      valueDate: "2026-05-10"
+                  - column:
+                      name: generado
+                      valueBoolean: true
+                  - column:
+                      name: observacion
+                      value: "Reporte generado correctamente"
+
+            - insert:
+                tableName: reportes
+                columns:
+                  - column:
+                      name: titulo
+                      value: "Reporte semanal de ingresos"
+                  - column:
+                      name: tipo_reporte
+                      value: "SEMANAL"
+                  - column:
+                      name: total_reservas
+                      valueNumeric: 25
+                  - column:
+                      name: total_ingresos
+                      valueNumeric: 1350000
+                  - column:
+                      name: fecha_generacion
+                      valueDate: "2026-05-11"
+                  - column:
+                      name: generado
+                      valueBoolean: true
+                  - column:
+                      name: observacion
+                      value: "Reporte semanal consolidado"
+
+            - insert:
+                tableName: reportes
+                columns:
+                  - column:
+                      name: titulo
+                      value: "Reporte mensual de arriendos"
+                  - column:
+                      name: tipo_reporte
+                      value: "MENSUAL"
+                  - column:
+                      name: total_reservas
+                      valueNumeric: 90
+                  - column:
+                      name: total_ingresos
+                      valueNumeric: 5200000
+                  - column:
+                      name: fecha_generacion
+                      valueDate: "2026-05-12"
+                  - column:
+                      name: generado
+                      valueBoolean: true
+                  - column:
+                      name: observacion
+                      value: "Reporte mensual disponible"

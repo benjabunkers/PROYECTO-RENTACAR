@@ -1,37 +1,37 @@
 package com.rentacar.ms_reportes.mapper;
 
 import com.rentacar.ms_reportes.dto.ReporteDTO;
+import com.rentacar.ms_reportes.dto.ReporteRequestDTO;
 import com.rentacar.ms_reportes.model.Reporte;
 
 public class ReporteMapper {
 
-    // ENTITY → DTO
     public static ReporteDTO toDTO(Reporte reporte) {
-
         return new ReporteDTO(
                 reporte.getId(),
                 reporte.getTitulo(),
-                reporte.getDescripcion(),
                 reporte.getTipoReporte(),
+                reporte.getTotalReservas(),
+                reporte.getTotalIngresos(),
                 reporte.getFechaGeneracion(),
-                reporte.getGeneradoPor(),
-                reporte.getActivo()
+                reporte.getGenerado(),
+                reporte.getObservacion()
         );
     }
 
-    // DTO → ENTITY
-    public static Reporte toEntity(ReporteDTO dto) {
-
+    public static Reporte toEntity(ReporteRequestDTO dto) {
         Reporte reporte = new Reporte();
-
-        reporte.setId(dto.getId());
-        reporte.setTitulo(dto.getTitulo());
-        reporte.setDescripcion(dto.getDescripcion());
-        reporte.setTipoReporte(dto.getTipoReporte());
-        reporte.setFechaGeneracion(dto.getFechaGeneracion());
-        reporte.setGeneradoPor(dto.getGeneradoPor());
-        reporte.setActivo(dto.getActivo());
-
+        updateEntity(reporte, dto);
         return reporte;
+    }
+
+    public static void updateEntity(Reporte reporte, ReporteRequestDTO dto) {
+        reporte.setTitulo(dto.getTitulo());
+        reporte.setTipoReporte(dto.getTipoReporte());
+        reporte.setTotalReservas(dto.getTotalReservas());
+        reporte.setTotalIngresos(dto.getTotalIngresos());
+        reporte.setFechaGeneracion(dto.getFechaGeneracion());
+        reporte.setGenerado(dto.getGenerado());
+        reporte.setObservacion(dto.getObservacion());
     }
 }

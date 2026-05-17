@@ -1,20 +1,21 @@
 package com.rentacar.ms_reportes.service;
 
+import com.rentacar.ms_reportes.client.PagoClient;
+import com.rentacar.ms_reportes.client.ReservaClient;
+import com.rentacar.ms_reportes.dto.PagoDTO;
 import com.rentacar.ms_reportes.dto.ReporteDTO;
+import com.rentacar.ms_reportes.dto.ReporteRequestDTO;
+import com.rentacar.ms_reportes.dto.ReservaDTO;
 import com.rentacar.ms_reportes.exception.ResourceNotFoundException;
 import com.rentacar.ms_reportes.mapper.ReporteMapper;
 import com.rentacar.ms_reportes.model.Reporte;
 import com.rentacar.ms_reportes.repository.ReporteRepository;
-
 import lombok.RequiredArgsConstructor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,123 +23,90 @@ import java.util.stream.Collectors;
 public class ReporteService {
 
     private final ReporteRepository reporteRepository;
+    private final ReservaClient reservaClient;
+    private final PagoClient pagoClient;
 
-    private static final Logger log =
-            LoggerFactory.getLogger(ReporteService.class);
+    private static final Logger log = LoggerFactory.getLogger(ReporteService.class);
 
-    // LISTAR
     public List<ReporteDTO> findAll() {
-
         log.info("Listando reportes");
-
         return reporteRepository.findAll()
                 .stream()
                 .map(ReporteMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // BUSCAR POR ID
     public ReporteDTO findById(Integer id) {
-
-        log.info("Buscando reporte por id: {}", id);
+        log.info("Buscando reporte por id {}", id);
 
         Reporte reporte = reporteRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Reporte no encontrado"
-                        ));
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado"));
 
         return ReporteMapper.toDTO(reporte);
     }
 
-    // GUARDAR
-    public ReporteDTO save(ReporteDTO dto) {
-
+    public ReporteDTO save(ReporteRequestDTO dto) {
         try {
-
             log.info("Guardando reporte");
-
-            Reporte reporte =
-                    ReporteMapper.toEntity(dto);
-
-            reporte = reporteRepository.save(reporte);
-
+            Reporte reporte = reporteRepository.save(ReporteMapper.toEntity(dto));
             return ReporteMapper.toDTO(reporte);
-
         } catch (Exception e) {
-
-            log.error("Error al guardar reporte: {}",
-                    e.getMessage());
-
+            log.error("Error al guardar reporte: {}", e.getMessage());
             throw e;
         }
     }
 
-    // ACTUALIZAR
-    public ReporteDTO update(
-            Integer id,
-            ReporteDTO dto) {
+    public ReporteDTO update(Integer id, ReporteRequestDTO dto) {
+        try {
+            log.info("Actualizando reporte {}", id);
 
-        log.info("Actualizando reporte");
+            Reporte reporte = reporteRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado"));
 
-        Reporte reporte = reporteRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Reporte no encontrado"
-                        ));
-
-        reporte.setTitulo(dto.getTitulo());
-        reporte.setDescripcion(dto.getDescripcion());
-        reporte.setTipoReporte(dto.getTipoReporte());
-        reporte.setFechaGeneracion(
-                dto.getFechaGeneracion()
-        );
-        reporte.setGeneradoPor(dto.getGeneradoPor());
-        reporte.setActivo(dto.getActivo());
-
-        reporte = reporteRepository.save(reporte);
-
-        return ReporteMapper.toDTO(reporte);
+            ReporteMapper.updateEntity(reporte, dto);
+            return ReporteMapper.toDTO(reporteRepository.save(reporte));
+        } catch (Exception e) {
+            log.error("Error al actualizar reporte: {}", e.getMessage());
+            throw e;
+        }
     }
 
-    // ELIMINAR
     public void delete(Integer id) {
-
-        log.info("Eliminando reporte");
+        log.info("Eliminando reporte {}", id);
 
         Reporte reporte = reporteRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Reporte no encontrado"
-                        ));
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado"));
 
         reporteRepository.delete(reporte);
     }
 
-    // BUSCAR POR TIPO
-    public List<ReporteDTO> findByTipoReporte(
-            String tipoReporte) {
+    public ReporteDTO generarReporteConsolidado() {
+        try {
+            log.info("Generando reporte consolidado desde reservas y pagos");
 
-        log.info("Buscando reportes por tipo");
+            List<ReservaDTO> reservas = reservaClient.listarReservas();
+            List<PagoDTO> pagos = pagoClient.listarPagos();
 
-        return reporteRepository
-                .findByTipoReporteContainingIgnoreCase(
-                        tipoReporte
-                )
-                .stream()
-                .map(ReporteMapper::toDTO)
-                .collect(Collectors.toList());
-    }
+            Integer totalReservas = reservas.size();
 
-    // BUSCAR ACTIVOS
-    public List<ReporteDTO> findByActivo(Boolean activo) {
+            Double totalIngresos = pagos.stream()
+                    .filter(pago -> Boolean.TRUE.equals(pago.getPagado()))
+                    .mapToDouble(PagoDTO::getMonto)
+                    .sum();
 
-        log.info("Buscando reportes activos");
+            Reporte reporte = new Reporte();
+            reporte.setTitulo("Reporte consolidado de arriendos");
+            reporte.setTipoReporte("CONSOLIDADO");
+            reporte.setTotalReservas(totalReservas);
+            reporte.setTotalIngresos(totalIngresos);
+            reporte.setFechaGeneracion(LocalDate.now());
+            reporte.setGenerado(true);
+            reporte.setObservacion("Reporte generado desde ms-reservas y ms-pagos");
 
-        return reporteRepository
-                .findByActivo(activo)
-                .stream()
-                .map(ReporteMapper::toDTO)
-                .collect(Collectors.toList());
+            return ReporteMapper.toDTO(reporteRepository.save(reporte));
+        } catch (Exception e) {
+            log.error("Error al generar reporte consolidado: {}", e.getMessage());
+            throw e;
+        }
     }
 }
