@@ -2,24 +2,26 @@ package com.rentacar.ms_pagos.repository;
 
 import com.rentacar.ms_pagos.model.Pago;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-@Repository
-
 public interface PagoRepository extends JpaRepository<Pago, Integer>{
 
-    // Buscar por metodo de pago
-    List<Pago> findByMetodoPagoContainingIgnoreCase(
-            String metodoPago
-    );
-
-    // Buscar por estado del pago
-    List<Pago> findByEstadoPagoContainingIgnoreCase(
-            String estadoPago
-    );
-
-    // Buscar pagos pagados/no pagados
+    List<Pago> findByMetodoPagoContainingIgnoreCase(String metodoPago);
+    List<Pago> findByEstadoPagoContainingIgnoreCase(String estadoPago);
     List<Pago> findByPagado(Boolean pagado);
+
+    @Query("""
+            SELECT p
+            FROM Pago p
+            WHERE p.monto BETWEEN :montoMinimo AND :montoMaximo
+            ORDER BY p.fechaPago DESC
+            """)
+    List<Pago> buscarPorRangoMontoOrdenadoPorFechaDesc(
+            @Param("montoMinimo") Double montoMinimo,
+            @Param("montoMaximo") Double montoMaximo
+    );
+
 }

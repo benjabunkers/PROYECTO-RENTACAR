@@ -1,20 +1,16 @@
 package com.rentacar.ms_empleados.service;
 
 import com.rentacar.ms_empleados.dto.EmpleadoDTO;
+import com.rentacar.ms_empleados.dto.EmpleadoRequestDTO;
 import com.rentacar.ms_empleados.exception.ResourceNotFoundException;
 import com.rentacar.ms_empleados.mapper.EmpleadoMapper;
 import com.rentacar.ms_empleados.model.Empleado;
 import com.rentacar.ms_empleados.repository.EmpleadoRepository;
-
 import lombok.RequiredArgsConstructor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,121 +18,57 @@ import java.util.stream.Collectors;
 public class EmpleadoService {
 
     private final EmpleadoRepository empleadoRepository;
+    private static final Logger log = LoggerFactory.getLogger(EmpleadoService.class);
 
-    private static final Logger log =
-            LoggerFactory.getLogger(EmpleadoService.class);
-
-    // LISTAR
     public List<EmpleadoDTO> findAll() {
-
         log.info("Listando empleados");
-
-        return empleadoRepository.findAll()
-                .stream()
-                .map(EmpleadoMapper::toDTO)
-                .collect(Collectors.toList());
+        return empleadoRepository.findAll().stream().map(EmpleadoMapper::toDTO).toList();
     }
 
-    // BUSCAR POR ID
     public EmpleadoDTO findById(Integer id) {
-
-        log.info("Buscando empleado por id: {}", id);
-
+        log.info("Buscando empleado por id {}", id);
         Empleado empleado = empleadoRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Empleado no encontrado"
-                        ));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
         return EmpleadoMapper.toDTO(empleado);
     }
 
-    // GUARDAR
-    public EmpleadoDTO save(EmpleadoDTO dto) {
-
+    public EmpleadoDTO save(EmpleadoRequestDTO dto) {
         try {
-
             log.info("Guardando empleado");
-
-            Empleado empleado =
-                    EmpleadoMapper.toEntity(dto);
-
-            empleado = empleadoRepository.save(empleado);
-
+            Empleado empleado = empleadoRepository.save(EmpleadoMapper.toEntity(dto));
             return EmpleadoMapper.toDTO(empleado);
-
         } catch (Exception e) {
-
-            log.error("Error al guardar empleado: {}",
-                    e.getMessage());
-
+            log.error("Error al guardar empleado: {}", e.getMessage());
             throw e;
         }
     }
 
-    // ACTUALIZAR
-    public EmpleadoDTO update(
-            Integer id,
-            EmpleadoDTO dto) {
+    public EmpleadoDTO update(Integer id, EmpleadoRequestDTO dto) {
+        try {
+            log.info("Actualizando empleado {}", id);
+            Empleado empleado = empleadoRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
-        log.info("Actualizando empleado");
-
-        Empleado empleado = empleadoRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Empleado no encontrado"
-                        ));
-
-        empleado.setNombre(dto.getNombre());
-        empleado.setApellido(dto.getApellido());
-        empleado.setCargo(dto.getCargo());
-        empleado.setEmail(dto.getEmail());
-        empleado.setSueldo(dto.getSueldo());
-        empleado.setFechaContratacion(
-                dto.getFechaContratacion()
-        );
-        empleado.setActivo(dto.getActivo());
-
-        empleado = empleadoRepository.save(empleado);
-
-        return EmpleadoMapper.toDTO(empleado);
+            EmpleadoMapper.updateEntity(empleado, dto);
+            return EmpleadoMapper.toDTO(empleadoRepository.save(empleado));
+        } catch (Exception e) {
+            log.error("Error al actualizar empleado: {}", e.getMessage());
+            throw e;
+        }
     }
 
-    // ELIMINAR
     public void delete(Integer id) {
-
-        log.info("Eliminando empleado");
-
+        log.info("Eliminando empleado {}", id);
         Empleado empleado = empleadoRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Empleado no encontrado"
-                        ));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
         empleadoRepository.delete(empleado);
     }
 
-    // BUSCAR POR CARGO
-    public List<EmpleadoDTO> findByCargo(String cargo) {
-
-        log.info("Buscando empleados por cargo");
-
-        return empleadoRepository
-                .findByCargoContainingIgnoreCase(cargo)
+    public List<EmpleadoDTO> findActivosPorAnioContratacion(Integer anio) {
+        log.info("Buscando empleados activos contratados en el anio {}", anio);
+        return empleadoRepository.buscarEmpleadosActivosPorAnioContratacion(anio)
                 .stream()
                 .map(EmpleadoMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    // BUSCAR ACTIVOS
-    public List<EmpleadoDTO> findByActivo(Boolean activo) {
-
-        log.info("Buscando empleados activos");
-
-        return empleadoRepository
-                .findByActivo(activo)
-                .stream()
-                .map(EmpleadoMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

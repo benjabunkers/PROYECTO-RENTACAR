@@ -1,8 +1,8 @@
-package com.rentacar.ms_pagos.dto;
-
+package com.rentacar.ms_reportes.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 
 @Data
@@ -19,6 +19,4 @@ public class PagoDTO {
     private String estadoPago;
     private String codigoTransaccion;
     private Boolean pagado;
-
-
 }

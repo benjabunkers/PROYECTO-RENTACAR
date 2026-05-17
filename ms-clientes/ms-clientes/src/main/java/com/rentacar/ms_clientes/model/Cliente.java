@@ -1,18 +1,17 @@
 package com.rentacar.ms_clientes.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.List;
-
-@Entity
-@Table(name = "CLIENTES")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "clientes")
 
 public class Cliente {
 
@@ -20,18 +19,27 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String nombre;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String telefono;
 
+    @Column(nullable = false)
+    private String numeroLicencia;
+
+    @Column(nullable = false)
     private Integer edad;
 
-    private Boolean activo;
+    @Column(nullable = false)
+    private Boolean activo = true;
 
+    @Column(nullable = false)
     private LocalDate fechaRegistro;
 
-    @OneToMany(mappedBy = "cliente")
-    private List<Direccion> direcciones;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Direccion> direcciones = new ArrayList<>();
 }

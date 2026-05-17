@@ -1,42 +1,23 @@
 package com.rentacar.ms_empleados.dto;
 
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class EmpleadoDTO {
 
     private Integer id;
-
-    @NotBlank(message = "El nombre es obligatorio")
-    private String nombre;
-
-    @NotBlank(message = "El apellido es obligatorio")
-    private String apellido;
-
-    @NotBlank(message = "El cargo es obligatorio")
-    private String cargo;
-
-    @Email(message = "El email no es válido")
-    @NotBlank(message = "El email es obligatorio")
+    private String nombreCompleto;
     private String email;
-
-    @NotNull(message = "El sueldo es obligatorio")
-    @Positive(message = "El sueldo debe ser mayor a 0")
+    private String cargo;
     private Double sueldo;
-
-    @NotNull(message = "La fecha de contratación es obligatoria")
     private LocalDate fechaContratacion;
-
     private Boolean activo;
+    private String telefono;
 }

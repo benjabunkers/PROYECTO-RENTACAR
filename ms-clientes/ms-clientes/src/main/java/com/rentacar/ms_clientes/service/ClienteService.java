@@ -1,110 +1,75 @@
 package com.rentacar.ms_clientes.service;
 
-import com.rentacar.ms_clientes.exception.ResourceNotFoundException;
-import com.rentacar.ms_clientes.model.Cliente;
-import com.rentacar.ms_clientes.dto.ClienteDTO;
-import com.rentacar.ms_clientes.mapper.ClienteMapper;
-import com.rentacar.ms_clientes.repository.ClienteRepository;
-
-import lombok.RequiredArgsConstructor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
+
+import com.rentacar.ms_clientes.dto.ClienteDTO;
+import com.rentacar.ms_clientes.dto.ClienteRequestDTO;
+import com.rentacar.ms_clientes.exception.ResourceNotFoundException;
+import com.rentacar.ms_clientes.mapper.ClienteMapper;
+import com.rentacar.ms_clientes.model.Cliente;
+import com.rentacar.ms_clientes.repository.ClienteRepository;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class ClienteService {
 
-    private final ClienteRepository clienteRepository;
+    private static final Logger log = LoggerFactory.getLogger(ClienteService.class);
+    private final ClienteRepository repository;
 
-    private static final Logger log =
-            LoggerFactory.getLogger(ClienteService.class);
+    public ClienteService(ClienteRepository repository) {
+        this.repository = repository;
+    }
 
-    // LISTAR
+    @Transactional(readOnly = true)
     public List<ClienteDTO> findAll() {
-
         log.info("Listando clientes");
-
-        return clienteRepository.findAll()
-                .stream()
-                .map(ClienteMapper::toDTO)
-                .collect(Collectors.toList());
+        return repository.findAll().stream().map(ClienteMapper::toDTO).toList();
     }
 
-    // BUSCAR POR ID
+    @Transactional(readOnly = true)
     public ClienteDTO findById(Integer id) {
-
-        log.info("Buscando cliente por id: {}", id);
-
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Cliente no encontrado"
-                        ));
-
-        return ClienteMapper.toDTO(cliente);
+        log.info("Buscando Cliente {}", id);
+        return repository
+                .findById(id)
+                .map(ClienteMapper::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con id " + id));
     }
 
-    // GUARDAR
-    public ClienteDTO save(ClienteDTO dto) {
-
+    public ClienteDTO save(ClienteRequestDTO d) {
         try {
-
-            log.info("Guardando cliente");
-
-            Cliente cliente = ClienteMapper.toEntity(dto);
-
-            cliente = clienteRepository.save(cliente);
-
-            return ClienteMapper.toDTO(cliente);
-
-        } catch (Exception e) {
-
-            log.error("Error al guardar cliente: {}", e.getMessage());
-
-            throw e;
+            log.info("Guardando Cliente");
+            Cliente x = ClienteMapper.toEntity(d);
+            return ClienteMapper.toDTO(repository.save(x));
+        } catch (RuntimeException ex) {
+            log.error("Error al guardar Cliente", ex);
+            throw ex;
         }
     }
 
-    // ACTUALIZAR
-    public ClienteDTO update(Integer id, ClienteDTO dto) {
-
-        log.info("Actualizando cliente");
-
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Cliente no encontrado"
-                        ));
-
-        cliente.setNombre(dto.getNombre());
-        cliente.setEmail(dto.getEmail());
-        cliente.setTelefono(dto.getTelefono());
-        cliente.setEdad(dto.getEdad());
-        cliente.setActivo(dto.getActivo());
-        cliente.setFechaRegistro(dto.getFechaRegistro());
-
-        cliente = clienteRepository.save(cliente);
-
-        return ClienteMapper.toDTO(cliente);
+    public ClienteDTO update(Integer id, ClienteRequestDTO d) {
+        Cliente x =
+                repository
+                        .findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con id " + id));
+        ClienteMapper.updateEntity(x, d);
+        return ClienteMapper.toDTO(repository.save(x));
     }
 
-    // ELIMINAR
     public void delete(Integer id) {
-
-        log.info("Eliminando cliente");
-
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Cliente no encontrado"
-                        ));
-
-        clienteRepository.delete(cliente);
+        if (!repository.existsById(id))
+            throw new ResourceNotFoundException("Cliente no encontrado con id " + id);
+        repository.deleteById(id);
     }
+
+    public List<ClienteDTO> buscarPorEmail(String texto) {
+        return repository.findByEmailContainingIgnoreCase(texto).stream()
+                .map(ClienteMapper::toDTO)
+                .toList();
+    }
+
+
 }
