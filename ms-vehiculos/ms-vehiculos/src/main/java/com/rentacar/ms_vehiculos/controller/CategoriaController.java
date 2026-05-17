@@ -18,29 +18,39 @@ public class CategoriaController {
         this.categoriaService = categoriaService;
     }
 
+
     @GetMapping
     public ResponseEntity<List<CategoriaDTO>> listarCategorias() {
-        return ResponseEntity.ok(categoriaService.listarCategorias());
+        List<CategoriaDTO> categorias = categoriaService.listarCategorias();
+        return ResponseEntity.ok(categorias);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaDTO> obtenerCategoriaPorId(@PathVariable Integer id) {
-        return ResponseEntity.ok(categoriaService.obtenerCategoriaPorId(id));
+        CategoriaDTO categoria = categoriaService.obtenerCategoriaPorId(id);
+        return ResponseEntity.ok(categoria);
     }
+
 
     @PostMapping
     public ResponseEntity<CategoriaDTO> crearCategoria(@RequestBody CategoriaDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.crearCategoria(dto));
+        CategoriaDTO nuevaCategoria = categoriaService.crearCategoria(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCategoria);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaDTO> actualizarCategoria(@PathVariable Integer id, @RequestBody CategoriaDTO dto) {
-        return ResponseEntity.ok(categoriaService.actualizarCategoria(id, dto));
+        CategoriaDTO categoriaActualizada = categoriaService.actualizarCategoria(id, dto);
+        return ResponseEntity.ok(categoriaActualizada);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCategoria(@PathVariable Integer id) {
         categoriaService.eliminarCategoria(id);
         return ResponseEntity.noContent().build();
     }
+
 }

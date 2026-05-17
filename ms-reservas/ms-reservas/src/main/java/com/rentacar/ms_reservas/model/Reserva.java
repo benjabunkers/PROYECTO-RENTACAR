@@ -30,4 +30,9 @@ public class Reserva {
 
     private LocalDate fechaInicio;
 
+
+    @ManyToOne
+    @JoinColumn(name = "estado_reserva_id", nullable = false)
+    private EstadoReserva estadoReserva;
+
 }

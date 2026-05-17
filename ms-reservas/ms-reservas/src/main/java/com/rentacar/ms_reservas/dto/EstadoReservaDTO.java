@@ -1,45 +1,42 @@
 package com.rentacar.ms_reservas.dto;
 
-
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservaDTO {
-
+public class EstadoReservaDTO {
     @Positive
     @Min(value=0)
     private Integer id;
 
     @Size(min=2, max=20)
     @NotBlank
-    private String codigoReserva ;
+    private String nombreEstado;
 
-    @Size(min=2, max=200)
+    @Size(min=2, max=20)
     @NotBlank
-    private String observacion;
+    private String descripcion;
 
-    @DecimalMin("0.0") @Digits(integer=8, fraction=2)
-    private Double total ;
+    @Size(min=2, max=20)
+    @NotBlank
+    private String colorEstado;
 
     @Positive
     @Min(value=0)
-    private Integer diasReserva ;
+    private Integer prioridad;
 
-    private Boolean activa ;
+    private boolean activo;
 
     @NotNull
     @PastOrPresent
-    private LocalDate fechaInicio;
+    private LocalDate fechaCreacion;
 
-    private Integer estadoReservaId;
-
-
-
+    private List<ReservaDTO> reservas ;
 }
