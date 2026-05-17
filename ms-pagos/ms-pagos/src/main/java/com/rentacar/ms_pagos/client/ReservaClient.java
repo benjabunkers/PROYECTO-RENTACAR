@@ -1,0 +1,14 @@
+package com.rentacar.ms_pagos.client;
+import com.rentacar.ms_pagos.dto.ReservaDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+@FeignClient(name = "ms-reservas", url = "${app.clients.reservas-url}")
+
+
+public interface ReservaClient {
+
+    @GetMapping("/api/v1/reservas/{id}")
+    ReservaDTO obtenerReservaPorId(@PathVariable Integer id);
+
+}
