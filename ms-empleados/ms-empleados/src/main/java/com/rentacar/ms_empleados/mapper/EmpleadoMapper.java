@@ -1,39 +1,38 @@
 package com.rentacar.ms_empleados.mapper;
 
 import com.rentacar.ms_empleados.dto.EmpleadoDTO;
+import com.rentacar.ms_empleados.dto.EmpleadoRequestDTO;
 import com.rentacar.ms_empleados.model.Empleado;
 
 public class EmpleadoMapper {
-    // ENTITY → DTO
-    public static EmpleadoDTO toDTO(Empleado empleado) {
 
+    public static EmpleadoDTO toDTO(Empleado empleado) {
         return new EmpleadoDTO(
                 empleado.getId(),
-                empleado.getNombre(),
-                empleado.getApellido(),
-                empleado.getCargo(),
+                empleado.getNombreCompleto(),
                 empleado.getEmail(),
+                empleado.getCargo(),
                 empleado.getSueldo(),
                 empleado.getFechaContratacion(),
-                empleado.getActivo()
+                empleado.getActivo(),
+                empleado.getTelefono()
         );
     }
 
-    // DTO → ENTITY
-    public static Empleado toEntity(EmpleadoDTO dto) {
-
+    public static Empleado toEntity(EmpleadoRequestDTO dto) {
         Empleado empleado = new Empleado();
+        updateEntity(empleado, dto);
+        return empleado;
+    }
 
-        empleado.setId(dto.getId());
-        empleado.setNombre(dto.getNombre());
-        empleado.setApellido(dto.getApellido());
-        empleado.setCargo(dto.getCargo());
+    public static void updateEntity(Empleado empleado, EmpleadoRequestDTO dto) {
+        empleado.setNombreCompleto(dto.getNombreCompleto());
         empleado.setEmail(dto.getEmail());
+        empleado.setCargo(dto.getCargo());
         empleado.setSueldo(dto.getSueldo());
         empleado.setFechaContratacion(dto.getFechaContratacion());
         empleado.setActivo(dto.getActivo());
-
-        return empleado;
+        empleado.setTelefono(dto.getTelefono());
     }
 
 }

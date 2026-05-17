@@ -8,29 +8,35 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-
+@Entity
+@Table(name = "empleados")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Entity
-@Table(name = "EMPLEADOS")
 public class Empleado {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String nombre;
+    @Column(name = "nombre_completo", nullable = false, length = 100)
+    private String nombreCompleto;
 
-    private String apellido;
-
-    private String cargo;
-
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Column(nullable = false, length = 50)
+    private String cargo;
+
+    @Column(nullable = false)
     private Double sueldo;
 
+    @Column(name = "fecha_contratacion", nullable = false)
     private LocalDate fechaContratacion;
 
-    private Boolean activo;
+    @Column(nullable = false)
+    private Boolean activo = true;
+
+    @Column(nullable = false, length = 20)
+    private String telefono;
 }
